@@ -1,0 +1,4 @@
+# requirements.txt
+
+# Add your project dependencies here
+pymongo==4.9.1
