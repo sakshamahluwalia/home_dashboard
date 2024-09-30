@@ -77,7 +77,7 @@ def get_billing_data_via_api_for_alectra(access_token):
     body = {
         "accountNumbers": [str(CONFIG.alectra_account_number)],
         "startDate": (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d"),
-        "endDate": datetime.now().strftime("%Y-%m-%d"),
+        "endDate": (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d"),
     }
 
     response = requests.post(url, headers=headers, json=body)
@@ -98,6 +98,7 @@ def get_billing_data_via_api_for_alectra(access_token):
 
 
 def extract_total_charges_from_api_response(api_response):
+    print(api_response)
     if (
         api_response is None
         or "data" not in api_response
