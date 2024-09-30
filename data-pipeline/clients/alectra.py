@@ -107,7 +107,7 @@ def extract_total_charges_from_api_response(api_response):
 
     # Extract the total charge from the API response
     data = api_response["data"]
-    latest_bill = data[0]
+    latest_bill = max(data, key=lambda x: datetime.strptime(x['billDate'], "%m-%d-%Y"))
     projected_bill = latest_bill["amountDue"]
     bill_period = latest_bill["billPeriod"]
 
