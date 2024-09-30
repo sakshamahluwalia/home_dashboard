@@ -1,5 +1,6 @@
 import re
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 from gen_helper.config import CONFIG
 from msft_helper.auth import generate_token
@@ -38,10 +39,12 @@ def extract_total_charges_from_email_body(html_content):
     return balance_amount
 
 
-'''
+"""
     Main function to login to outlook main and extract the total charge for reliance
     @return: total_charge: float or None
-'''
+"""
+
+
 def main(headers):
     sender_filter = CONFIG.reliance_water_sender_filter
     subject_filter = CONFIG.reliance_water_subject_filter
@@ -50,6 +53,7 @@ def main(headers):
     emails = fetch_emails(headers, subject_filter, sender_filter)
 
     total_charge = None
+    received_date = None
     # read email body
     if not emails:
         print("No emails found matching the criteria.")
@@ -57,9 +61,15 @@ def main(headers):
         for email in emails:
             # download_attachments(email['id'], headers, dir_to_save_emails)
             body = fetch_email_body(headers, email["id"])
+            received_date_str = email["receivedDateTime"]
+            received_date = datetime.strptime(received_date_str, "%Y-%m-%dT%H:%M:%SZ")
             total_charge = extract_total_charges_from_email_body(body)
-    
-    return float(total_charge) if total_charge else None
+
+    return {
+        "total_charge": total_charge if total_charge else 0,
+        "month": received_date.month if received_date else None,
+        "year": received_date.year if received_date else None,
+    }
 
 
 if __name__ == "__main__":

@@ -12,8 +12,8 @@ def fetch_emails(headers, subject_filter=None, sender_filter=None):
 
     endpoint = 'https://graph.microsoft.com/v1.0/me/messages'
     params = {
-        '$select': 'id,subject,from,hasAttachments',
-        '$top': 2,  # Adjust as needed
+        '$select': 'id,subject,from,hasAttachments,receivedDateTime',
+        '$top': 1,  # Adjust as needed
     }
     
     # Build filter query

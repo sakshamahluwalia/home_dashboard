@@ -9,7 +9,6 @@ from gen_helper.db import connect_to_mongo, close_mongo_connection, write_bill_t
 
 from msft_helper.auth import generate_token
 
-from datetime import datetime
 
 def main(driver, client):
     access_token = generate_token()
@@ -31,21 +30,25 @@ def main(driver, client):
         password_of_user=CONFIG.brampton_water_password,
     )
     service_provider_to_amount["Enbridge"] = enbridge_main(headers)
-    service_provider_to_amount["Reliance Water Heater"] = reliance_water_heater_main(headers)
+    service_provider_to_amount["Reliance Water Heater"] = reliance_water_heater_main(
+        headers
+    )
 
     if client:
-        current_month = datetime.now().month
-        current_year = datetime.now().year
-        for service_provider, amount in service_provider_to_amount.items():
-            write_bill_to_mongo(client, service_provider, amount, current_month, current_year)
-        
+        for service_provider, details in service_provider_to_amount.items():
+            write_bill_to_mongo(
+                client,
+                service_provider,
+                details["total_charge"],
+                details["month"],
+                details["year"],
+            )
 
 
 if __name__ == "__main__":
     my_driver = MyDriver()
     driver = my_driver.start_webdriver()
     client = connect_to_mongo()
-    if client:
-        main(driver, client)
+    main(driver, client)
     close_mongo_connection(client)
     my_driver.stop_webdriver()

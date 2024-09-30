@@ -13,6 +13,7 @@ from msft_helper.outlook_client import fetch_brampton_water_email_from_junk
 
 import time
 import re
+from datetime import datetime
 
 """
     Login to the Alectra website using the provided username and password
@@ -91,8 +92,14 @@ def finish_login_using_otp(driver, otp):
 
 def navigate_to_bill_page(driver):
     # Click the "View Bill" button
-    driver.get('https://peelregion.idoxs.ca/billing/Bills.aspx')
-    import pdb; pdb.set_trace()
+    time.sleep(5)
+    billing_and_payment_button = driver.find_element(By.ID, "billing-and-payment")
+    billing_and_payment_button.click()
+
+    # Click the "View Bill" card
+    time.sleep(5)
+    view_bill_card = driver.find_elements(By.CLASS_NAME, 'section-title')[0]
+    view_bill_card.click()
 
 
 """
@@ -101,13 +108,17 @@ def navigate_to_bill_page(driver):
 def extract_total_charges_from_webpage(driver):
     # Wait for the page to load
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "main_lblCurrentBalance"))
+        EC.presence_of_element_located((By.ID, "main_ctl09_lblAmountDue"))
     )
     # Find the total charge element
-    total_charge_element = driver.find_element(By.ID, "main_lblCurrentBalance")
+    total_charge_element = driver.find_element(By.ID, "main_ctl09_lblAmountDue")
     total_charge = total_charge_element.text.replace("$", "")
 
-    return total_charge
+    due_date_element = driver.find_element(By.ID, "main_ctl09_lblDueDate")
+    due_date = due_date_element.text
+
+    date_obj = datetime.strptime(due_date, '%B %d, %Y')
+    return total_charge, date_obj.month, date_obj.year
 
 
 
@@ -121,9 +132,10 @@ def main(driver, msft_auth_headers, username_of_user, password_of_user):
     otp = fetch_otp_from_email(msft_auth_headers)
     if otp:
         finish_login_using_otp(driver, otp)
+        
         navigate_to_bill_page(driver)
-        total_charge = extract_total_charges_from_webpage(driver)
-        return float(total_charge) if total_charge else None
+        total_charge, month, year = extract_total_charges_from_webpage(driver)
+        return {"total_charge": total_charge if total_charge else 0, "month": month, "year": year}
     else:
         print("Could not login to Brampton water.")
         return None

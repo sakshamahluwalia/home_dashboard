@@ -7,10 +7,13 @@ import requests
 
 from gen_helper.config import CONFIG
 from gen_helper.driver import MyDriver
+from datetime import datetime, timedelta
 
 """
     Login to the Alectra website using the provided username and password
 """
+
+
 def login_to_alectra(driver, username_of_user, password_of_user):
     # Open the Alectra website
     driver.get("https://myalectra.alectrautilities.com/portal/#/login")
@@ -39,6 +42,8 @@ def login_to_alectra(driver, username_of_user, password_of_user):
 """
     Get the access token from the cookies after logging in
 """
+
+
 def get_access_token_from_cookies(driver):
     # After login, wait for a bit to ensure the cookies are set
     time.sleep(3)
@@ -57,18 +62,25 @@ def get_access_token_from_cookies(driver):
 """
     Get alectra billing data via API after getting the access token
 """
+
+
 def get_billing_data_via_api_for_alectra(access_token):
     if access_token is None:
         print("Access token is None. Please login first.")
         return None
     # Make an API request to get the billing data
-    url = f"https://alectra-svc.smartcmobile.link/apiservices/api/1/account/GetDashBoardBill?AccountNumber={CONFIG.alectra_account_number}"
+    url = "https://alectra-svc.smartcmobile.link/BillingAPI/api/1/bill/history"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
     }
+    body = {
+        "accountNumbers": [str(CONFIG.alectra_account_number)],
+        "startDate": (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d"),
+        "endDate": datetime.now().strftime("%Y-%m-%d"),
+    }
 
-    response = requests.get(url, headers=headers)
+    response = requests.post(url, headers=headers, json=body)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -83,27 +95,39 @@ def get_billing_data_via_api_for_alectra(access_token):
 """
     Extract the total charge using the API response
 """
+
+
 def extract_total_charges_from_api_response(api_response):
-    if api_response is None or "data" not in api_response or "projectedBill" not in api_response["data"]:
+    if (
+        api_response is None
+        or "data" not in api_response
+        or len(api_response["data"]) == 0
+    ):
         return None
+
     # Extract the total charge from the API response
     data = api_response["data"]
-    projected_bill = data["projectedBill"]
-    return projected_bill
+    latest_bill = data[0]
+    projected_bill = latest_bill["amountDue"]
+    bill_period = latest_bill["billPeriod"]
+
+    date_obj = datetime.strptime(bill_period, "%m-%d-%Y")
+    return projected_bill, date_obj.month, date_obj.year
 
 
-'''
+"""
     Main function to login to Alectra and extract the total charge
     @return: total_charge: float or None
-'''
+"""
+
+
 def main(driver, username_of_user, password_of_user):
     login_to_alectra(driver, username_of_user, password_of_user)
     WebDriverWait(driver, 5)
     access_token = get_access_token_from_cookies(driver)
     api_response = get_billing_data_via_api_for_alectra(access_token)
-    total_charge = extract_total_charges_from_api_response(api_response)
-    return float(total_charge) if total_charge else None
-
+    total_charge, month, year = extract_total_charges_from_api_response(api_response)
+    return {"total_charge": total_charge if total_charge else 0, "month": month, "year": year}
 
 
 if __name__ == "__main__":
