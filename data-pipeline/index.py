@@ -34,6 +34,7 @@ def main(driver, client):
         headers
     )
 
+    print(service_provider_to_amount)
     if client:
         for service_provider, details in service_provider_to_amount.items():
             write_bill_to_mongo(
