@@ -32,7 +32,7 @@ class MyDriver:
         # Specify the path to Chromedriver
         service = Service('/usr/bin/chromedriver') 
 
-        # self.driver = webdriver.Chrome(service=self.service, options=chrome_options)
+        # self.driver = webdriver.Chrome(service=self.service)
         
         # Initialize the driver with the specified service and options
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
