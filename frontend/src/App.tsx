@@ -8,6 +8,12 @@ import {
   Stack,
   useMediaQuery,
   useTheme,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 import { getBills, Bill } from "./services/billsService";
 import BillsTable from "./components/BillsTable";
@@ -21,6 +27,8 @@ const App: React.FC = () => {
     "last4months"
   );
   const [filteredBills, setFilteredBills] = useState<Bill[]>([]);
+  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
+  const [uniqueProviders, setUniqueProviders] = useState<string[]>([]);
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -30,6 +38,9 @@ const App: React.FC = () => {
       try {
         const data = await getBills();
         setBills(data);
+        const providers = Array.from(new Set(data.map((bill) => bill.service_provider)));
+        setUniqueProviders(providers);
+        setSelectedProviders(providers); // Default to all providers selected
       } catch (error) {
         console.error("Error fetching bills:", error);
       }
@@ -40,16 +51,24 @@ const App: React.FC = () => {
   useEffect(() => {
     let filteredData = bills;
 
+    // Filter by date range
     if (dataRange === "last4months") {
-      const sixMonthsAgo = dayjs().subtract(4, "month");
-      filteredData = bills.filter((bill) => {
-        const billDate = dayjs(bill.year + "-" + bill.month);
-        return billDate.month() >= sixMonthsAgo.month();
+      const fourMonthsAgo = dayjs().subtract(4, "month");
+      filteredData = filteredData.filter((bill) => {
+        const billDate = dayjs(`${bill.year}-${bill.month}-01`);
+        return billDate.isAfter(fourMonthsAgo);
       });
     }
 
+    // Filter by selected service providers
+    if (selectedProviders.length > 0) {
+      filteredData = filteredData.filter((bill) =>
+        selectedProviders.includes(bill.service_provider)
+      );
+    }
+
     setFilteredBills(filteredData);
-  }, [bills, dataRange]);
+  }, [bills, dataRange, selectedProviders]);
 
   const handleChartTypeChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -69,11 +88,18 @@ const App: React.FC = () => {
     }
   };
 
-  // Optionally sort bills for the table
+  const handleProviderChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    const value = event.target.value as string[];
+    setSelectedProviders(value);
+  };
+
+  // Sort bills for the table in descending order of date
   const sortedBills = [...filteredBills].sort((a, b) => {
-    const dateA = new Date(a.year, a.month - 1);
-    const dateB = new Date(b.year, b.month - 1);
-    return dateB.getTime() - dateA.getTime();
+    const dateA = dayjs(`${a.year}-${a.month}-01`);
+    const dateB = dayjs(`${b.year}-${b.month}-01`);
+    return dateB.valueOf() - dateA.valueOf();
   });
 
   return (
@@ -96,6 +122,7 @@ const App: React.FC = () => {
         spacing={2}
         sx={{ marginBottom: 2 }}
       >
+        {/* Chart Type Toggle */}
         <ToggleButtonGroup
           color="primary"
           value={chartType}
@@ -110,6 +137,7 @@ const App: React.FC = () => {
           </ToggleButton>
         </ToggleButtonGroup>
 
+        {/* Data Range Toggle */}
         <ToggleButtonGroup
           color="primary"
           value={dataRange}
@@ -123,6 +151,28 @@ const App: React.FC = () => {
             All Data
           </ToggleButton>
         </ToggleButtonGroup>
+
+        {/* Service Provider Filter */}
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel id="service-provider-label">Service Provider</InputLabel>
+          <Select
+            labelId="service-provider-label"
+            id="service-provider-select"
+            multiple
+            value={selectedProviders}
+            // @ts-ignore
+            onChange={handleProviderChange}
+            renderValue={(selected) => (selected as string[]).join(", ")}
+            label="Service Provider"
+          >
+            {uniqueProviders.map((provider) => (
+              <MenuItem key={provider} value={provider}>
+                <Checkbox checked={selectedProviders.indexOf(provider) > -1} />
+                <ListItemText primary={provider} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Stack>
 
       <BillsChart bills={filteredBills} chartType={chartType} />
