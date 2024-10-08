@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install
 
 # Copy the rest of the application code
 COPY . .
@@ -19,7 +19,7 @@ ENV VITE_API_URL=$VITE_API_URL
 
 
 # Build the app
-RUN npm run build
+RUN yarn build
 
 # Stage 2: Production Stage
 FROM nginx:stable-alpine

@@ -49,10 +49,6 @@ services:
       - mongodb
     volumes:
       - msft_token_data:/app/msft_helper/api_token
-    # environment:
-      # - MONGODB_URI=mongodb://mongodb:27017/home_dashboard
-    # networks:
-    #   - app-network
 
 volumes:
   mongodb_data:

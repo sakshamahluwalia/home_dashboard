@@ -8,13 +8,13 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install
 
 # Copy the source code
 COPY . .
 
 # Build the TypeScript code
-RUN npm run build
+RUN yarn build
 
 # Stage 2: Production Stage
 FROM node:20-alpine
@@ -28,10 +28,10 @@ COPY --from=build /usr/src/app/dist ./dist
 COPY package.json ./
 
 # Install only production dependencies
-RUN npm install --only=production
+RUN yarn install --production
 
 # Expose the port
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "docker-start"]
+CMD ["yarn", "docker-start"]

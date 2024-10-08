@@ -143,7 +143,7 @@ const App: React.FC = () => {
         <Stack
           direction={isSmallScreen ? "column" : "row"}
           spacing={2}
-          sx={{ marginBottom: 2 }}
+          sx={{ mb: 2, mx: 1 }}
         >
           {/* Chart Type Toggle */}
           <ToggleButtonGroup
@@ -175,6 +175,21 @@ const App: React.FC = () => {
             </ToggleButton>
           </ToggleButtonGroup>
 
+          {/* Theme Toggle */}
+          <ToggleButtonGroup
+            color="primary"
+            value={themeMode}
+            exclusive
+            onChange={handleThemeToggle}
+          >
+            <ToggleButton value="dark" sx={{ padding: "12px 16px" }}>
+              Dark Mode
+            </ToggleButton>
+            <ToggleButton value="light" sx={{ padding: "12px 16px" }}>
+              Light Mode
+            </ToggleButton>
+          </ToggleButtonGroup>
+
           {/* Service Provider Filter */}
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel id="service-provider-label">
@@ -200,11 +215,6 @@ const App: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-
-          {/* Dark Mode Toggle */}
-          <IconButton onClick={handleThemeToggle} color="inherit">
-            {themeMode === "light" ? <Brightness4 /> : <Brightness7 />}
-          </IconButton>
         </Stack>
 
         <BillsChart bills={filteredBills} chartType={chartType} />
