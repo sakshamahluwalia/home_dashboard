@@ -21,3 +21,19 @@ export const getBills = async (): Promise<Bill[]> => {
     throw error;
   }
 };
+
+export const updateBill = async (id: string, billData: Partial<Bill>): Promise<Bill> => {
+  const response = await fetch(`${API_URL}/bills/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(billData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update bill');
+  }
+
+  return response.json();
+};

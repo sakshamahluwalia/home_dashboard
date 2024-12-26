@@ -14,10 +14,8 @@ import {
   MenuItem,
   Checkbox,
   ListItemText,
-  IconButton,
 } from "@mui/material";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
-import { getBills, Bill } from "./services/billsService";
+import { getBills, Bill, updateBill } from "./services/billsService";
 import BillsTable from "./components/BillsTable";
 import BillsChart from "./components/BillsChart";
 import dayjs from "dayjs";
@@ -114,6 +112,19 @@ const App: React.FC = () => {
 
   const handleThemeToggle = () => {
     setThemeMode(themeMode === "light" ? "dark" : "light");
+  };
+
+  const handleSaveEdit = async (updatedBill: Bill) => {
+    try {
+      const savedBill = await updateBill(updatedBill._id, updatedBill);
+      // Update the bills state with the edited bill
+      setBills(bills.map(bill => 
+        bill._id === savedBill._id ? savedBill : bill
+      ));
+    } catch (error) {
+      console.error('Failed to update bill:', error);
+      // You might want to add error handling here (e.g., show a snackbar)
+    }
   };
 
   // Sort bills for the table in descending order of date
@@ -218,7 +229,10 @@ const App: React.FC = () => {
         </Stack>
 
         <BillsChart bills={filteredBills} chartType={chartType} />
-        <BillsTable bills={sortedBills} />
+        <BillsTable 
+          bills={sortedBills} 
+          onSaveEdit={handleSaveEdit}
+        />
       </Container>
     </ThemeProvider>
   );
