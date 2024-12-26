@@ -127,18 +127,21 @@ def extract_total_charges_from_webpage(driver):
     @return: total_charge: float or None
 '''
 def main(driver, msft_auth_headers, username_of_user, password_of_user):
-    login(driver, username_of_user, password_of_user)
-    time.sleep(10)
-    otp = fetch_otp_from_email(msft_auth_headers)
-    if otp:
-        finish_login_using_otp(driver, otp)
-        
-        navigate_to_bill_page(driver)
-        total_charge, month, year = extract_total_charges_from_webpage(driver)
-        return {"total_charge": total_charge if total_charge else 0, "month": month, "year": year}
-    else:
-        print("Could not login to Brampton water.")
-        return None
+    try:
+        login(driver, username_of_user, password_of_user)
+        time.sleep(10)
+        otp = fetch_otp_from_email(msft_auth_headers)
+        if otp:
+            finish_login_using_otp(driver, otp)
+
+            navigate_to_bill_page(driver)
+            total_charge, month, year = extract_total_charges_from_webpage(driver)
+            return {"total_charge": total_charge if total_charge else 0, "month": month, "year": year}
+        else:
+            print("Could not login to Brampton water.")
+            return None
+    except Exception as e:
+        print(f"failed to get bill for bramtpon water {str(e)}")
 
 
 if __name__ == "__main__":

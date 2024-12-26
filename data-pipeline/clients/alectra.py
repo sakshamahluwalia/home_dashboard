@@ -98,7 +98,7 @@ def get_billing_data_via_api_for_alectra(access_token):
 
 
 def extract_total_charges_from_api_response(api_response):
-    print(api_response)
+    # print(api_response)
     if (
         api_response is None
         or "data" not in api_response
@@ -123,12 +123,15 @@ def extract_total_charges_from_api_response(api_response):
 
 
 def main(driver, username_of_user, password_of_user):
-    login_to_alectra(driver, username_of_user, password_of_user)
-    WebDriverWait(driver, 5)
-    access_token = get_access_token_from_cookies(driver)
-    api_response = get_billing_data_via_api_for_alectra(access_token)
-    total_charge, month, year = extract_total_charges_from_api_response(api_response)
-    return {"total_charge": total_charge if total_charge else 0, "month": month, "year": year}
+    try:
+        login_to_alectra(driver, username_of_user, password_of_user)
+        WebDriverWait(driver, 5)
+        access_token = get_access_token_from_cookies(driver)
+        api_response = get_billing_data_via_api_for_alectra(access_token)
+        total_charge, month, year = extract_total_charges_from_api_response(api_response)
+        return {"total_charge": total_charge if total_charge else 0, "month": month, "year": year}
+    except Exception as e:
+        print(f"failed to get bill for alectra {str(e)}")
 
 
 if __name__ == "__main__":

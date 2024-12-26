@@ -37,13 +37,14 @@ def main(driver, client):
     print(service_provider_to_amount)
     if client:
         for service_provider, details in service_provider_to_amount.items():
-            write_bill_to_mongo(
-                client,
-                service_provider,
-                details["total_charge"],
-                details["month"],
-                details["year"],
-            )
+            if details:
+                write_bill_to_mongo(
+                    client,
+                    service_provider,
+                    details["total_charge"],
+                    details["month"],
+                    details["year"],
+                )
 
 
 if __name__ == "__main__":

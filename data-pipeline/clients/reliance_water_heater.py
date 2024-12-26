@@ -46,30 +46,33 @@ def extract_total_charges_from_email_body(html_content):
 
 
 def main(headers):
-    sender_filter = CONFIG.reliance_water_sender_filter
-    subject_filter = CONFIG.reliance_water_subject_filter
+    try:
+        sender_filter = CONFIG.reliance_water_sender_filter
+        subject_filter = CONFIG.reliance_water_subject_filter
 
-    # get emails
-    emails = fetch_emails(headers, subject_filter, sender_filter)
+        # get emails
+        emails = fetch_emails(headers, subject_filter, sender_filter)
 
-    total_charge = None
-    received_date = None
-    # read email body
-    if not emails:
-        print("No emails found matching the criteria.")
-    else:
-        for email in emails:
-            # download_attachments(email['id'], headers, dir_to_save_emails)
-            body = fetch_email_body(headers, email["id"])
-            received_date_str = email["receivedDateTime"]
-            received_date = datetime.strptime(received_date_str, "%Y-%m-%dT%H:%M:%SZ")
-            total_charge = extract_total_charges_from_email_body(body)
+        total_charge = None
+        received_date = None
+        # read email body
+        if not emails:
+            print("No emails found matching the criteria.")
+        else:
+            for email in emails:
+                # download_attachments(email['id'], headers, dir_to_save_emails)
+                body = fetch_email_body(headers, email["id"])
+                received_date_str = email["receivedDateTime"]
+                received_date = datetime.strptime(received_date_str, "%Y-%m-%dT%H:%M:%SZ")
+                total_charge = extract_total_charges_from_email_body(body)
 
-    return {
-        "total_charge": total_charge if total_charge else 0,
-        "month": received_date.month if received_date else None,
-        "year": received_date.year if received_date else None,
-    }
+        return {
+            "total_charge": total_charge if total_charge else 0,
+            "month": received_date.month if received_date else None,
+            "year": received_date.year if received_date else None,
+        }
+    except Exception as e:
+        print(f"failed to get bill for RL water heater {str(e)}")
 
 
 if __name__ == "__main__":
