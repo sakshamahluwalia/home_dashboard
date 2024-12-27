@@ -33,5 +33,9 @@ RUN yarn install --production
 # Expose the port
 EXPOSE ${PORT}
 
+# Accept build arguments
+ARG DATA_PIPELINE_URL
+ENV DATA_PIPELINE_URL=$DATA_PIPELINE_URL
+
 # Start the application
 CMD ["yarn", "docker-start"]

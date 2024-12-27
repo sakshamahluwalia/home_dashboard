@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import billsRouter from './routes/bills';
+import dataPipelineRouter from './routes/dataPipeline';
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/bills', billsRouter);
+app.use('/api/data-pipeline', dataPipelineRouter);
 
 // Default route
 app.get('/', (req, res) => {

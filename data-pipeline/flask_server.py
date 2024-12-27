@@ -8,7 +8,7 @@ PORT = os.getenv('PORT')
 app = Flask(__name__)
 
 # Path to the data extraction script
-DATA_EXTRACTION_SCRIPT = "/app/index_test.py"
+DATA_EXTRACTION_SCRIPT = "/app/index.py"
 
 @app.route('/', methods=['GET'])
 def hello_world():
