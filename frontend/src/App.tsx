@@ -14,6 +14,9 @@ import {
   MenuItem,
   Checkbox,
   ListItemText,
+  Alert,
+  Snackbar,
+  Button,
 } from "@mui/material";
 import { getBills, Bill, updateBill } from "./services/billsService";
 import BillsTable from "./components/BillsTable";
@@ -22,6 +25,7 @@ import dayjs from "dayjs";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { darkTheme, lightTheme } from "./config/theme";
+import { triggerDataExtraction } from "./services/dataPipelineService";
 
 const App: React.FC = () => {
   const [bills, setBills] = useState<Bill[]>([]);
@@ -32,6 +36,11 @@ const App: React.FC = () => {
   const [filteredBills, setFilteredBills] = useState<Bill[]>([]);
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [uniqueProviders, setUniqueProviders] = useState<string[]>([]);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Theme state
   const [themeMode, setThemeMode] = useState<"light" | "dark">(() => {
@@ -118,13 +127,34 @@ const App: React.FC = () => {
     try {
       const savedBill = await updateBill(updatedBill._id, updatedBill);
       // Update the bills state with the edited bill
-      setBills(bills.map(bill => 
-        bill._id === savedBill._id ? savedBill : bill
-      ));
+      setBills(
+        bills.map((bill) => (bill._id === savedBill._id ? savedBill : bill))
+      );
     } catch (error) {
-      console.error('Failed to update bill:', error);
+      console.error("Failed to update bill:", error);
       // You might want to add error handling here (e.g., show a snackbar)
     }
+  };
+
+  const handleTriggerExtraction = async () => {
+    try {
+      await triggerDataExtraction();
+      setSnackbar({
+        open: true,
+        message: "Data extraction started successfully.",
+        severity: "success",
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "Failed to start data extraction.",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   // Sort bills for the table in descending order of date
@@ -226,13 +256,31 @@ const App: React.FC = () => {
               ))}
             </Select>
           </FormControl>
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleTriggerExtraction}
+          >
+            Trigger Data Extraction
+          </Button>
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+          >
+            <Alert
+              onClose={handleCloseSnackbar}
+              severity={snackbar.severity}
+              sx={{ width: "100%" }}
+            >
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
         </Stack>
 
         <BillsChart bills={filteredBills} chartType={chartType} />
-        <BillsTable 
-          bills={sortedBills} 
-          onSaveEdit={handleSaveEdit}
-        />
+        <BillsTable bills={sortedBills} onSaveEdit={handleSaveEdit} />
       </Container>
     </ThemeProvider>
   );
