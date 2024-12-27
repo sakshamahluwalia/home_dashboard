@@ -31,7 +31,7 @@ COPY package.json ./
 RUN yarn install --production
 
 # Expose the port
-EXPOSE 3000
+EXPOSE ${PORT}
 
 # Start the application
 CMD ["yarn", "docker-start"]
