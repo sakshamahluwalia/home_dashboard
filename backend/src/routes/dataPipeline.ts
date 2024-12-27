@@ -14,7 +14,7 @@ const DATA_PIPELINE_URL = process.env.DATA_PIPELINE_URL || 'http://localhost:300
 router.get('/', async (req: Request, res: Response) => {
   try {
     // Send a POST request to the data-pipeline's Flask API to trigger extraction
-    const response = await axios.get(DATA_PIPELINE_URL, {
+    const response = await axios.get(`${DATA_PIPELINE_URL}/start`, {
       headers: {
         'Content-Type': 'application/json',
       },
