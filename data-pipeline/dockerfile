@@ -64,20 +64,14 @@ RUN mkdir -p ./msft_helper/api_token
 # Set ownership and permissions.
 RUN chown -R root:root ./msft_helper/api_token && chmod -R 755 ./msft_helper/api_token
 
-# Copy the crontab file to the cron directory.
-COPY crontab /etc/cron.d/data_pipeline_cron
-
-# Give execution rights on the cron job.
-RUN chmod 0644 /etc/cron.d/data_pipeline_cron
-
-# Apply cron job.
-RUN crontab /etc/cron.d/data_pipeline_cron
-
-# Create the log file to be able to run tail.
-RUN touch /var/log/cron.log
+# Remove supervisord configuration
+# (Assuming you've deleted supervisord.conf and related files)
 
 # Set environment variables if needed.
 ENV PYTHONUNBUFFERED=1
 
-# Run the command on container startup.
-CMD ["cron", "-f"]
+# Expose Flask API port
+EXPOSE ${PORT}
+
+# Run the Flask app directly
+CMD ["python", "flask_server.py"]

@@ -14,11 +14,25 @@ services:
     depends_on:
       - mongodb
       - db-init
+      - data-pipeline
     ports:
       - "3000:3000"
     environment:
       - PORT=3000
       - MONGODB_URI=mongodb://mongodb:27017/home_dashboard
+  
+  data-pipeline:
+    build:
+      context: ./data-pipeline
+    container_name: data-pipeline
+    depends_on:
+      - mongodb
+    volumes:
+      - msft_token_data:/app/msft_helper/api_token
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
 
   frontend:
     build:
@@ -40,15 +54,6 @@ services:
     restart: "no"
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/home_dashboard
-
-  data-pipeline:
-    build:
-      context: ./data-pipeline
-    container_name: data-pipeline
-    depends_on:
-      - mongodb
-    volumes:
-      - msft_token_data:/app/msft_helper/api_token
 
 volumes:
   mongodb_data:

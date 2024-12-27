@@ -1,2 +1,0 @@
-# Run at 00:00 on the 28th day of every month
-0 0 28 * * root python /app/index.py >> /var/log/cron.log 2>&1
