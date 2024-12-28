@@ -13,7 +13,7 @@ interface EditableRowProps {
   bill: Bill;
   editForm: Partial<Bill>;
   onSave: () => Promise<void>;
-  onCancel: () => void;
+  onDelete: () => Promise<void>;
   onChange: (updates: Partial<Bill>) => void;
 }
 
@@ -21,7 +21,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
   bill,
   editForm,
   onSave,
-  onCancel,
+  onDelete,
   onChange,
 }) => {
   return (
@@ -31,7 +31,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           fullWidth
           value={editForm.service_provider || ''}
           onChange={(e) => onChange({ service_provider: e.target.value })}
-          size="small"
+        
         />
       </TableCell>
       <TableCell align="right">
@@ -39,7 +39,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           type="number"
           value={editForm.amount || ''}
           onChange={(e) => onChange({ amount: parseFloat(e.target.value) })}
-          size="small"
+        
         />
       </TableCell>
       <TableCell align="right">
@@ -47,7 +47,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           type="number"
           value={editForm.month || ''}
           onChange={(e) => onChange({ month: parseInt(e.target.value) })}
-          size="small"
+        
           inputProps={{ min: 1, max: 12 }}
         />
       </TableCell>
@@ -56,7 +56,7 @@ const EditableRow: React.FC<EditableRowProps> = ({
           type="number"
           value={editForm.year || ''}
           onChange={(e) => onChange({ year: parseInt(e.target.value) })}
-          size="small"
+        
         />
       </TableCell>
       <TableCell
@@ -71,12 +71,12 @@ const EditableRow: React.FC<EditableRowProps> = ({
       </TableCell>
       <TableCell align="right">
         <Tooltip title="Save">
-          <IconButton onClick={onSave} size="small" color="primary">
+          <IconButton onClick={onSave} color="primary">
             <SaveIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Cancel">
-          <IconButton onClick={onCancel} size="small" color="error">
+        <Tooltip title="Delete">
+          <IconButton onClick={onDelete} color="error">
             <CancelIcon />
           </IconButton>
         </Tooltip>

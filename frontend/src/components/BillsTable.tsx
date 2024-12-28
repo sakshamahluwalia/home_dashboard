@@ -17,9 +17,10 @@ import EditableRow from "./EditableRow";
 interface BillsTableProps {
   bills: Bill[];
   onSaveEdit: (bill: Bill) => Promise<void>;
+  onDeleteBill: (id: string) => Promise<void>;
 }
 
-const BillsTable: React.FC<BillsTableProps> = ({ bills, onSaveEdit }) => {
+const BillsTable: React.FC<BillsTableProps> = ({ bills, onSaveEdit, onDeleteBill }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Bill>>({});
 
@@ -65,7 +66,7 @@ const BillsTable: React.FC<BillsTableProps> = ({ bills, onSaveEdit }) => {
                   bill={bill}
                   editForm={editForm}
                   onSave={handleSave}
-                  onCancel={() => setEditingId(null)}
+                  onDelete={() => onDeleteBill(bill._id)}
                   onChange={(updates) => setEditForm({ ...editForm, ...updates })}
                 />
               ) : (

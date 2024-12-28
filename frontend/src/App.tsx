@@ -18,7 +18,7 @@ import {
   Snackbar,
   Button,
 } from "@mui/material";
-import { getBills, Bill, updateBill } from "./services/billsService";
+import { getBills, Bill, updateBill, deleteBill } from "./services/billsService";
 import BillsTable from "./components/BillsTable";
 import BillsChart from "./components/BillsChart";
 import dayjs from "dayjs";
@@ -157,6 +157,11 @@ const App: React.FC = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handleDeleteBill = async (id: string) => {
+    await deleteBill(id);
+    setBills(bills.filter((bill) => bill._id !== id));
+  };
+
   // Sort bills for the table in descending order of date
   const sortedBills = [...filteredBills].sort((a, b) => {
     const dateA = dayjs(`${a.year}-${a.month}-01`);
@@ -280,7 +285,7 @@ const App: React.FC = () => {
         </Stack>
 
         <BillsChart bills={filteredBills} chartType={chartType} />
-        <BillsTable bills={sortedBills} onSaveEdit={handleSaveEdit} />
+        <BillsTable bills={sortedBills} onSaveEdit={handleSaveEdit} onDeleteBill={handleDeleteBill} />
       </Container>
     </ThemeProvider>
   );

@@ -37,3 +37,7 @@ export const updateBill = async (id: string, billData: Partial<Bill>): Promise<B
 
   return response.json();
 };
+
+export const deleteBill = async (id: string): Promise<void> => {
+  await axios.delete(`${API_URL}/bills/${id}`);
+};
